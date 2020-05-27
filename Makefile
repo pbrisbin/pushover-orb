@@ -1,6 +1,6 @@
 CIRCLECI ?= circleci --skip-update-check
 
-ORB_REF     ?= pbrisbin/stack-build
+ORB_REF     ?= pbrisbin/pushover
 ORB_DEV_TAG ?= alpha
 
 out/orb.yml: src/*.yml

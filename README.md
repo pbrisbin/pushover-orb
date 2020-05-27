@@ -1,6 +1,6 @@
 # Pushover Orb [![CircleCI status](https://circleci.com/gh/pbrisbin/pushover-orb.svg "CircleCI status")](https://circleci.com/gh/pbrisbin/pushover-orb)
 
-Built, test, and lint Stack-based Haskell projects in your CircleCI jobs.
+Send push notifications with [Pushover](https://pushover.net/).
 
 ## Usage
 
