@@ -19,7 +19,7 @@ workflows:
           name: notify
           title: '$CIRCLE_PROJECT_REPONAME'
           message: 'Released version ${CIRCLE_SHA1:0:10}'
-          requires: release
+          requires: [release]
 ```
 
 See [all examples](./src/examples/).
