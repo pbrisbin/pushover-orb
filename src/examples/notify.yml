@@ -1,0 +1,17 @@
+description: |
+  Send a notification with title and message
+
+usage:
+  version: 2.1
+
+  orbs:
+    stack-build: pbrisbin/pushover@x.y
+
+  workflows:
+    commit:
+      jobs:
+        - pushover/notify
+            name: notify
+            title: '$CIRCLE_PROJECT_REPONAME'
+            message: 'Released version ${CIRCLE_SHA1:0:10}'
+            requires: release
