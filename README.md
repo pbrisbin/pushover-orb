@@ -15,7 +15,7 @@ workflows:
     jobs:
       # ...
 
-      - pushover/notify
+      - pushover/notify:
           name: notify
           title: '$CIRCLE_PROJECT_REPONAME'
           message: 'Released version ${CIRCLE_SHA1:0:10}'
