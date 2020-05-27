@@ -1,0 +1,36 @@
+description: |
+  Send a notification with Pushover
+
+parameters:
+  api-key:
+    description: Pushover API Key
+    type: env_var_name
+    default: PUSHOVER_API_KEY
+  user-key:
+    description: Pushover User Key
+    type: env_var_name
+    default: PUSHOVER_USER_KEY
+  title:
+    description: Notification title
+    type: string
+  message:
+    description: Notification message
+    type: string
+  priority:
+    description: 'Notification priority (low-to-high: -2 to 1)'
+    type: integer
+    default: 0
+  executor:
+    description: Executor to run in
+    type: executor
+    default: default
+
+executor: <<parameters.executor>>
+
+steps:
+  - notify:
+      api-key: <<parameters.api-key>>
+      user-key: <<parameters.user-key>>
+      title: <<parameters.title>>
+      message: <<parameters.message>>
+      priority: <<parameters.priority>>

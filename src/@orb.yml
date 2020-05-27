@@ -1,0 +1,7 @@
+version: 2.1
+
+description: |
+  Send push notifications with Pushover
+
+display:
+  source_url: https://github.com/pbrisbin/pushover-orb

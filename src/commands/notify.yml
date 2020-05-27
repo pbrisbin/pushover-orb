@@ -1,0 +1,41 @@
+description: |
+  Send a notification with Pushover
+
+# NOTE: from the Message API (https://pushover.net/api), I'm only exposing
+# the interface I need at the moment, which means:
+#
+# - title is required
+# - many options aren't here
+#
+# PRs welcome
+parameters:
+  api-key:
+    description: Pushover API Key
+    type: env_var_name
+    default: PUSHOVER_API_KEY
+  user-key:
+    description: Pushover User Key
+    type: env_var_name
+    default: PUSHOVER_USER_KEY
+  title:
+    description: Notification title
+    type: string
+  message:
+    description: Notification message
+    type: string
+  priority:
+    description: 'Notification priority (low-to-high: -2 to 1)'
+    type: integer
+    default: 0
+
+steps:
+  - run:
+      name: Notify via Pushover
+      command: |
+        curl -s \
+          --form-string "token=${<<parameters.api-key>>}" \
+          --form-string "user=${<<parameters.user-key>>}" \
+          --form-string "title=<<parameters.title>>" \
+          --form-string "message=<<parameters.message>>" \
+          --form-string "priority=<<parameters.priority>>" \
+          https://api.pushover.net/1/messages.json
