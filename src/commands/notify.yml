@@ -27,15 +27,75 @@ parameters:
     description: 'Notification priority (low-to-high: -2 to 1)'
     type: integer
     default: 0
+  fail_only:
+    description: If `true`, notifications successful jobs will not be sent
+    type: boolean
+    default: false
+  only_for_branches:
+    description: If set, a comma-separated list of branches for which to send notifications. No spaces.
+    type: string
+    default: ""
 
 steps:
   - run:
-      name: Notify via Pushover
+      name: Pushover - Setting Failure Condition
       command: |
-        curl -s \
-          --form-string "token=${<<parameters.api-key>>}" \
-          --form-string "user=${<<parameters.user-key>>}" \
-          --form-string "title=<<parameters.title>>" \
-          --form-string "message=<<parameters.message>>" \
-          --form-string "priority=<<parameters.priority>>" \
-          https://api.pushover.net/1/messages.json
+        echo 'export PUSHOVER_BUILD_STATUS="fail"' >> $BASH_ENV
+      when: on_fail
+
+  - run:
+      name: Pushover - Setting Success Condition
+      command: |
+        echo 'export PUSHOVER_BUILD_STATUS="success"' >> $BASH_ENV
+      when: on_success
+
+  - run:
+      name: Provide error if non-bash shell
+      command: |
+        if [ ! -x /bin/bash ]; then
+          echo Bash not installed.
+          exit 1
+        fi
+
+  - run:
+      name: Notify via Pushover
+      shell: /bin/bash
+      when: always
+      command: |
+        current_branch_in_filter=false
+
+        IFS="," read -ra BRANCH_FILTERS \<<< "<< parameters.only_for_branches >>"
+
+        for i in "${BRANCH_FILTERS[@]}"; do
+          if [ "${i}" == "${CIRCLE_BRANCH}" ]; then
+            current_branch_in_filter=true
+          fi
+        done
+
+        if [ "x" == "x<< parameters.only_for_branches>>" ] || [ "$current_branch_in_filter" = true ]; then
+          # If successful
+          if [ "$PUSHOVER_BUILD_STATUS" = "success" ]; then
+            # Skip if fail_only
+            if [ << parameters.fail_only >> = true ]; then
+              echo "The job completed successfully"
+              echo '"fail_only" is set to "true". No Pushover notification sent.'
+            else
+              curl -s \
+                --form-string "token=${<<parameters.api-key>>}" \
+                --form-string "user=${<<parameters.user-key>>}" \
+                --form-string "title=<<parameters.title>>" \
+                --form-string "message=<<parameters.message>>" \
+                --form-string "priority=<<parameters.priority>>" \
+                https://api.pushover.net/1/messages.json
+            fi
+          # If Failed
+          else
+            curl -s \
+              --form-string "token=${<<parameters.api-key>>}" \
+              --form-string "user=${<<parameters.user-key>>}" \
+              --form-string "title=<<parameters.title>>" \
+              --form-string "message=<<parameters.message>>" \
+              --form-string "priority=<<parameters.priority>>" \
+              https://api.pushover.net/1/messages.json
+          fi
+        fi
