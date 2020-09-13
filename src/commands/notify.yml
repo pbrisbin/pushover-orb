@@ -24,7 +24,7 @@ parameters:
     description: Notification message
     type: string
   priority:
-    description: 'Notification priority (low-to-high: -2 to 1)'
+    description: "Notification priority (low-to-high: -2 to 1)"
     type: integer
     default: 0
   fail_only:
