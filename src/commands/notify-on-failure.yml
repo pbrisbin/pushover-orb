@@ -1,0 +1,77 @@
+description: |
+  Send a notification with Pushover on failure
+
+# NOTE: from the Message API (https://pushover.net/api), I'm only exposing
+# the interface I need at the moment, which means:
+#
+# - title is required
+# - many options aren't here
+#
+# PRs welcome
+parameters:
+  api-key:
+    description: Pushover API Key
+    type: env_var_name
+    default: PUSHOVER_API_KEY
+  user-key:
+    description: Pushover User Key
+    type: env_var_name
+    default: PUSHOVER_USER_KEY
+  title:
+    description: Notification title
+    type: string
+    default: "Failed ${CIRCLE_PROJECT_REPONAME}'s job (${CIRCLE_JOB})"
+  message:
+    description: Notification message
+    type: string
+    default: "Failed ${CIRCLE_USERNAME:=unknown}'s build (#${CIRCLE_BUILD_NUM}) in ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} (${CIRCLE_BRANCH})"
+  priority:
+    description: "Notification priority (low-to-high: -2 to 1)"
+    type: integer
+    default: 1
+  only_for_branches:
+    description: If set, a space-separated list of branches for which to send notifications.
+    type: string
+    default: master
+
+steps:
+  - run:
+      when: on_success
+      name: Pushover - Setting Success Condition
+      command: |
+        echo 'export PUSHOVER_BUILD_STATUS="success"' > /tmp/PUSHOVER_JOB_STATUS
+
+  - run:
+      when: on_fail
+      name: Pushover - Setting Failure Condition
+      command: |
+        echo 'export PUSHOVER_BUILD_STATUS="fail"' > /tmp/PUSHOVER_JOB_STATUS
+
+  - run:
+      when: always
+      name: Notify via Pushover on failure
+      command: |
+        . /tmp/PUSHOVER_JOB_STATUS
+        current_branch_in_filter=false
+
+        for i in << parameters.only_for_branches>>; do
+          if [ "$i" = "$CIRCLE_BRANCH" ]; then
+            current_branch_in_filter=true
+          fi
+        done
+
+        if [ "x" = "x<< parameters.only_for_branches>>" -o "$current_branch_in_filter" = "true" ]; then
+          # If successful
+          if [ "$PUSHOVER_BUILD_STATUS" = "success" ]; then
+            echo "The job completed successfully"
+          # If Failed
+          else
+            curl -s \
+              --form-string "token=${<<parameters.api-key>>}" \
+              --form-string "user=${<<parameters.user-key>>}" \
+              --form-string "title=<<parameters.title>>" \
+              --form-string "message=<<parameters.message>>" \
+              --form-string "priority=<<parameters.priority>>" \
+              https://api.pushover.net/1/messages.json
+          fi
+        fi
