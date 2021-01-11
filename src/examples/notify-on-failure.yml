@@ -1,0 +1,25 @@
+description: |
+  Send a notification with title and message on failure
+
+usage:
+  version: 2.1
+
+  orbs:
+    pushover: pbrisbin/pushover@x.y
+
+  jobs:
+    your-awsome-job:
+      docker:
+        - image: cimg/node:current
+      steps:
+        - checkout
+        - run:
+            command: any tests
+        - pushover/notify-on-failure:
+            name: notify on failure
+            only_for_branches: master develop
+
+  workflows:
+    ordinary:
+      jobs:
+        - your-awsome-job
