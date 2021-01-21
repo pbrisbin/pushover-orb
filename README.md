@@ -1,3 +1,9 @@
+**ARCHIVED**: For better or worse, I'm moving over to GitHub Actions for my CI needs and will not be maintaining
+this package. Please see this fork, which picks up where I left off:
+
+- https://github.com/masutaka/pushover-orb
+- https://circleci.com/developer/orbs/orb/masutaka/pushover
+
 # Pushover Orb [![CircleCI status](https://circleci.com/gh/pbrisbin/pushover-orb.svg "CircleCI status")](https://circleci.com/gh/pbrisbin/pushover-orb)
 
 Send push notifications with [Pushover](https://pushover.net/).
